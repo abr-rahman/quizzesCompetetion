@@ -31,6 +31,12 @@
                         <p>{{ __('Quizzes') }}</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('answer_sheet') }}" class="nav-link">
+                        <i class="nav-icon fas fa fa-reply"></i>
+                        <p>{{ __('Answer') }}</p>
+                    </a>
+                </li>
                 @endcan
                 @can('isUser')
                     <li class="nav-item">

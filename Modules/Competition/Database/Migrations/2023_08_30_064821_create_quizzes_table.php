@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamp('end_date')->nullable();
             $table->integer('point');
             $table->boolean('status')->default(1);
+            $table->longText('answer')->nullable();
             $table->timestamps();
         });
     }

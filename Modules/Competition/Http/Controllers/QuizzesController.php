@@ -75,4 +75,14 @@ class QuizzesController extends Controller
         $quizze = $this->quizzeService->statusActive($id);
         return response()->json(['Status change successfully!']);
     }
+    public function approve($id)
+    {
+        $quizze = $this->quizzeService->answerApprove($id);
+        return back()->with('success', 'Answer Approved!');
+    }
+    public function reject($id)
+    {
+        $quizze = $this->quizzeService->answerReject($id);
+        return back()->with('success', 'Answer Rejected!');
+    }
 }

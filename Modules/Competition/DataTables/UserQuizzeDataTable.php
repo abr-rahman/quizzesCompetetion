@@ -2,6 +2,8 @@
 
 namespace Modules\Competition\DataTables;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\Competition\Entities\Quizzes;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
@@ -24,12 +26,29 @@ class UserQuizzeDataTable extends DataTable
             ->editColumn('question', function ($row) {
                 return $row->question->question;
             })
+
             ->addColumn('action', function ($row) {
                 $html = '<div class="dropdown">';
                 $html .= '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>';
                 $html .= '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-                $html .= '<a class="dropdown-item edit-btn"  href="' . route('quizzes.edit', $row->id) . '">Edit</a>';
-                $html .= '<a class="dropdown-item delete-btn" href="' . route('quizzes.destroy', $row->id) . '">Delete</a>';
+                if (auth()->user()->can('isAdmin')) {
+                    $html .= '<a class="dropdown-item edit-btn"  href="' . route('quizzes.edit', $row->id) . '">Edit</a>';
+                    $html .= '<a class="dropdown-item delete-btn" href="' . route('quizzes.destroy', $row->id) . '">Delete</a>';
+                }
+                if($row->answer == null){
+                    if (auth()->user()->can('isUser')) {
+                        $html .= '<a class="dropdown-item ans-btn" href="' . route('quizzes.answer', $row->id) . '">Answer</a>';
+                    }
+                }
+                if ($row->status == 3) {
+                    $html .= '<a class="dropdown-item text-info">Approved</a>';
+                }
+                if ($row->status == 4) {
+                    $html .= '<a class="dropdown-item text-success">Pending</a>';
+                }
+                if ($row->status == 5) {
+                    $html .= '<a class="dropdown-item text-danger">Rejected</a>';
+                }
                 $html .= '</div>';
                 $html .= '</div>';
                 return $html;
@@ -45,14 +64,9 @@ class UserQuizzeDataTable extends DataTable
      */
     public function query(Quizzes $model)
     {
-        // $auth = auth()->user()->id;
-        // $user_id = $model->user_id;
-        // // dd($auth);
-        // $quizze = $model->where('user_id', $auth)->get();
-
-        // if($quizze == true && $auth){
-            return $model->newQuery()->orderBy('created_at', 'desc');
-        // }
+        if (auth()->user()->can('isUser')) {
+            return $model->newQuery()->where('user_id', Auth::id())->orderBy('created_at', 'desc');
+        }
     }
 
     /**
@@ -84,13 +98,13 @@ class UserQuizzeDataTable extends DataTable
         return [
             Column::computed('DT_RowIndex', 'SL NO'),
             Column::computed('action')
-                  ->exportable(false)
-                  ->printable(false)
-                  ->width(60)
+            ->exportable(false)
+            ->printable(false)
+            ->width(60)
                   ->addClass('text-center'),
-            Column::make('name'),
-            Column::make('question'),
-            Column::make('point'),
+                  Column::make('name'),
+                  Column::make('question'),
+                  Column::make('point'),
         ];
     }
 

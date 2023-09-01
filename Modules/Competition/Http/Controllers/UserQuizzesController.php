@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Modules\Competition\DataTables\UserQuizzeDataTable;
 use Modules\Competition\Entities\Quizzes;
 
@@ -17,10 +18,9 @@ class UserQuizzesController extends Controller
      */
     public function index(Request $request, UserQuizzeDataTable $dataTable)
     {
-        $auth = auth()->user()->id;
-        $quizze = Quizzes::where('user_id', $auth)->get();
-        $user = User::where('id', $auth)->where('role', 'user')->first();
-        return $dataTable->render('competition::user.quizze.index');
+        $total = Quizzes::where('user_id', Auth::id())->where('status', 3)->sum('point');
+        $reject = Quizzes::where('user_id', Auth::id())->where('status', 5)->sum('point');
+        return $dataTable->render('competition::user.quizze.index', compact('total', 'reject'));
     }
 
     /**

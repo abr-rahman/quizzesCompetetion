@@ -2,6 +2,8 @@
 
 namespace Modules\Competition\DataTables;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\Competition\Entities\Quizzes;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
@@ -9,7 +11,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class QuizzesDataTable extends DataTable
+class AnswerDataTable extends DataTable
 {
     /**
      * Build DataTable class.
@@ -24,28 +26,28 @@ class QuizzesDataTable extends DataTable
             ->editColumn('assign_to', function ($row) {
                 return $row->user->name;
             })
-            ->editColumn('question', function ($row) {
-                return $row->question->question;
-            })
-            ->editColumn('status', function ($row) {
-                if ($row->status == 1) {
-                    $html = '<div class="col-sm-5"><a href="' . route('quizzes.active', $row->id) . '" class="btn btn-success" id="check_status"></a> </div>';
-                    return $html;
-                }
-                if ($row->status == 2) {
-                    $html = '<div class="col-sm-5"><a href="' . route('quizzes.inactive', $row->id) . '" class="btn btn-danger" id="check_status"></a> </div>';
-                    return $html;
-                }
-            })
             ->addColumn('action', function ($row) {
                 $html = '<div class="dropdown">';
                 $html .= '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>';
                 $html .= '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-                $html .= '<a class="dropdown-item edit-btn"  href="' . route('quizzes.edit', $row->id) . '">Edit</a>';
-                $html .= '<a class="dropdown-item delete-btn" href="' . route('quizzes.destroy', $row->id) . '">Delete</a>';
+                if (auth()->user()->can('isAdmin')) {
+                    $html .= '<a class="dropdown-item edit-btn"  href="' . route('quizzes.edit', $row->id) . '">Edit</a>';
+                    $html .= '<a class="dropdown-item delete-btn border" href="' . route('quizzes.destroy', $row->id) . '">Delete</a>';
+                }
+                if (auth()->user()->can('isAdmin')) {
+                    if($row->status == 1 && $row->answer != null){
+                        $html .= '<a class="dropdown-item ans-btn text-success" href="' . route('quizzes.approve', $row->id) . '">Answer Approve Pending</a>';
+                        $html .= '<a class="dropdown-item ans-btn text-danger" href="' . route('quizzes.reject', $row->id) . '">Answer Reject</a>';
+                    }
+                    if($row->status == 1 && $row->answer == null){
+                        $html .= '<a class="dropdown-item ans-btn text-success">Answer Pending</a>';
+                    }
+                    if($row->status == 3){
+                        $html .= '<a class="dropdown-item ans-btn text-info">Answer Approved</a>';
+                    }
+                }
                 $html .= '</div>';
                 $html .= '</div>';
-
                 return $html;
             })
             ->rawColumns(['action', 'status']);
@@ -76,7 +78,6 @@ class QuizzesDataTable extends DataTable
                     ->dom('Bfrtip')
                     ->orderBy(1)
                     ->buttons(
-                        Button::make('create'),
                         Button::make('print'),
                         Button::make('reload')
                     );
@@ -98,12 +99,8 @@ class QuizzesDataTable extends DataTable
                   ->addClass('text-center'),
             Column::make('name'),
             Column::make('assign_to'),
-            Column::make('question'),
-            Column::make('to_date'),
-            Column::make('end_date'),
+            Column::make('answer'),
             Column::make('point'),
-            Column::computed('status'),
-            Column::make('created_at'),
         ];
     }
 

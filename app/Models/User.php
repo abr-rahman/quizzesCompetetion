@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Competition\Entities\Answer;
+use Modules\Competition\Entities\Quizzes;
 
 class User extends Authenticatable
 {
@@ -23,6 +25,10 @@ class User extends Authenticatable
         'password',
         'role',
     ];
+    public function quizze()
+    {
+        return $this->belongsTo(Quizzes::class, 'user_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.

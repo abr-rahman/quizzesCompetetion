@@ -20,7 +20,6 @@ Class QuizzesService implements QuizzesServiceInterface
     public function store(array $attributes)
     {
         $user = User::where('role', 'user')->get();
-        // dd($user);
         $quizzes =  Quizzes::create($attributes);
         return $quizzes;
     }
@@ -60,6 +59,26 @@ Class QuizzesService implements QuizzesServiceInterface
         $quizzes = Quizzes::find($id);
         if ($quizzes->status == 1) {
             $quizzes->status = 2;
+        }
+        $quizzes->save();
+        return $quizzes;
+    }
+
+    public function answerApprove(int $id)
+    {
+        $quizzes = Quizzes::find($id);
+        if ($quizzes->status == 1 || $quizzes->status = 4) {
+            $quizzes->status = 3;
+        }
+        $quizzes->save();
+        return $quizzes;
+    }
+
+    public function answerReject(int $id)
+    {
+        $quizzes = Quizzes::find($id);
+        if ($quizzes->status == 1 || $quizzes->status = 4) {
+            $quizzes->status = 5;
         }
         $quizzes->save();
         return $quizzes;
