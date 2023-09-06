@@ -26,7 +26,9 @@ class UserQuizzeDataTable extends DataTable
             ->editColumn('question', function ($row) {
                 return $row->question->question;
             })
-
+            ->editColumn('quize_name', function ($row) {
+                return $row->name;
+            })
             ->addColumn('action', function ($row) {
                 $html = '<div class="dropdown">';
                 $html .= '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>';
@@ -102,7 +104,7 @@ class UserQuizzeDataTable extends DataTable
             ->printable(false)
             ->width(60)
                   ->addClass('text-center'),
-                  Column::make('name'),
+                  Column::computed('quize_name'),
                   Column::make('question'),
                   Column::make('point'),
         ];

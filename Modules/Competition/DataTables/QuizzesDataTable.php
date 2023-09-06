@@ -27,6 +27,9 @@ class QuizzesDataTable extends DataTable
             ->editColumn('question', function ($row) {
                 return $row->question->question;
             })
+            ->editColumn('quize_name', function ($row) {
+                return $row->name;
+            })
             ->editColumn('status', function ($row) {
                 if ($row->status == 1) {
                     $html = '<div class="col-sm-5"><a href="' . route('quizzes.active', $row->id) . '" class="btn btn-success" id="check_status"></a> </div>';
@@ -96,7 +99,7 @@ class QuizzesDataTable extends DataTable
                   ->printable(false)
                   ->width(60)
                   ->addClass('text-center'),
-            Column::make('name'),
+            Column::computed('quize_name'),
             Column::make('assign_to'),
             Column::make('question'),
             Column::make('to_date'),
